@@ -1,0 +1,52 @@
+@host = http://localhost:5131
+
+### All bookings
+GET {{host}}/api/bookings
+
+### New booking (Anna, Csoportszoba A, 10–12) → 201
+POST {{host}}/api/bookings
+Content-Type: application/json
+
+{ "roomId": 3, "userId": 2, "date": "2026-11-27", "startHour": 10, "endHour": 12, "peopleCount": 2, "note": "Prog ZH" }
+
+### Conflict: ugyanaz a terem 11–13 → 409
+POST {{host}}/api/bookings
+Content-Type: application/json
+
+{ "roomId": 3, "userId": 3, "date": "2026-11-27", "startHour": 11, "endHour": 13 }
+
+### No conflict → 201
+POST {{host}}/api/bookings
+Content-Type: application/json
+
+{ "roomId": 3, "userId": 3, "date": "2026-11-27", "startHour": 12, "endHour": 14 }
+
+### Anna in two rooms at the same time → 409
+POST {{host}}/api/bookings
+Content-Type: application/json
+
+{ "roomId": 4, "userId": 2, "date": "2026-11-27", "startHour": 11, "endHour": 12 }
+
+### Too long (5 hours) → 400
+POST {{host}}/api/bookings
+Content-Type: application/json
+
+{ "roomId": 5, "userId": 2, "date": "2026-11-27", "startHour": 10, "endHour": 15 }
+
+### Over capacity (1 person room, 3 people) → 400
+POST {{host}}/api/bookings
+Content-Type: application/json
+
+{ "roomId": 1, "userId": 2, "date": "2026-11-27", "startHour": 14, "endHour": 15, "peopleCount": 3 }
+
+### Modification (the first new booking's id is 5) → 200
+PUT {{host}}/api/bookings/5
+Content-Type: application/json
+
+{ "roomId": 3, "userId": 2, "date": "2026-11-27", "startHour": 15, "endHour": 17, "peopleCount": 2 }
+
+### Deletion → 204
+DELETE {{host}}/api/bookings/5
+
+### Non-existent booking → 404
+GET {{host}}/api/bookings/999

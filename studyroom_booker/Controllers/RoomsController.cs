@@ -14,13 +14,5 @@ public class RoomsController(IRoomService roomService) : ControllerBase
 
     // GET /api/rooms/3
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<RoomDto>> GetById(int id)
-    {
-        var room = await roomService.GetByIdAsync(id);
-        if (room == null)
-        {
-            return NotFound(new ApiError("Nincs ilyen terem."));
-        }
-        return room;
-    }
+    public async Task<RoomDto> GetById(int id) => await roomService.GetByIdAsync(id);
 }

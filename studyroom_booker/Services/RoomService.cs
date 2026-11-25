@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using studyroom_booker.Data;
 using studyroom_booker.Dtos;
+using studyroom_booker.Exceptions;
 
 namespace studyroom_booker.Services;
 
@@ -12,15 +13,15 @@ public class RoomService(AppDbContext db) : IRoomService
         return rooms.Select(RoomDto.From).ToList();
     }
 
-    public async Task<RoomDto?> GetByIdAsync(int id)
+    public async Task<RoomDto> GetByIdAsync(int id)
     {
         var room = await db.Rooms.FindAsync(id);
 
-        if(room != null)
+        if(room == null)
         {
-            return RoomDto.From(room);
+            throw new NotFoundException($"Nincs ilyen terem");
         }
 
-        return null;
+        return RoomDto.From(room);
     }
 }
