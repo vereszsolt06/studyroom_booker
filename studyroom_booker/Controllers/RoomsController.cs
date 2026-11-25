@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using studyroom_booker.Dtos;
 using studyroom_booker.Services;
 
@@ -6,6 +7,7 @@ namespace studyroom_booker.Controllers;
 
 [ApiController]
 [Route("api/rooms")]
+[Authorize]
 public class RoomsController(IRoomService roomService) : ControllerBase
 {
     // GET /api/rooms

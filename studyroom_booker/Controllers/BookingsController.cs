@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using studyroom_booker.Dtos;
 using studyroom_booker.Services;
 
@@ -6,11 +7,12 @@ namespace studyroom_booker.Controllers;
 
 [ApiController]
 [Route("api/bookings")]
+[Authorize]
 public class BookingsController(IBookingService bookingService) : ControllerBase
 {
-    // GET /api/bookings?date=2026-11-26&roomId=3
+    // GET /api/bookings?date=2026-11-26&from=2026-11-25&roomId=3&mine=true
     [HttpGet]
-    public async Task<List<BookingDto>> GetAll([FromQuery] DateOnly? date, [FromQuery] int? roomId) => await bookingService.GetAllAsync(date, roomId);
+    public async Task<List<BookingDto>> GetAll([FromQuery] DateOnly? date, [FromQuery] DateOnly? from, [FromQuery] int? roomId, [FromQuery] bool mine = false) => await bookingService.GetAllAsync(date, from, roomId, mine);
 
     // GET /api/bookings/5
     [HttpGet("{id:int}")]

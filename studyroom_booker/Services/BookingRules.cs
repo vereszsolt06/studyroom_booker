@@ -39,4 +39,6 @@ public static class BookingRules
 
         return null;
     }
+
+    public static bool CanModify(Booking booking, int userId, bool isAdmin) => isAdmin || booking.UserId == userId;
 }
