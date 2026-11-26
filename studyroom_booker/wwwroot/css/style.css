@@ -4,7 +4,20 @@ body {
 
 .card {
     border: none;
+    border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+#messageArea .alert {
+    margin-bottom: 1rem;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
 }
 
 .login-page {
@@ -86,6 +99,10 @@ body {
     border-left: 4px solid #3b82f6 !important;
 }
 
+.booking:hover {
+    filter: brightness(0.96);
+}
+
 .booking.mine {
     background-color: #dcfce7;
     border-left-color: #22c55e !important;
@@ -135,5 +152,3 @@ body {
 .legend-past {
     background: repeating-linear-gradient(45deg, #f3f4f6, #f3f4f6 3px, #e9ecef 3px, #e9ecef 6px);
 }
-
-/* ===== Statisztika oldal ===== */

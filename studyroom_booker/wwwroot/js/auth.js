@@ -37,6 +37,12 @@ function renderUserMenu(user) {
     menu.append(logoutButton);
 }
 
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        window.location.reload();
+    }
+});
+
 async function logout() {
     try {
         await api.logout();

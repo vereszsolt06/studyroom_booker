@@ -70,6 +70,7 @@ function createBookingCell(booking) {
     const cell = document.createElement('td');
     cell.colSpan = booking.endHour - booking.startHour;
     cell.className = 'booking';
+    cell.title = `${booking.studentName}, ${formatHour(booking.startHour)}–${formatHour(booking.endHour)}${booking.note ? ', ' + booking.note : ''}`;
 
     if (isPastBooking(booking)) {
         cell.classList.add('past');
