@@ -46,6 +46,13 @@
                 </div>
             </div>
         </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 id="upcomingTitle" class="h5 mb-3">Közelgő foglalásaim</h2>
+                <div id="upcomingList" class="list-group list-group-flush"></div>
+            </div>
+        </div>
     </main>
 
     <div class="modal fade" id="bookingModal" tabindex="-1">
@@ -58,6 +65,12 @@
                     </div>
                     <div class="modal-body">
                         <div id="bookingError" class="alert alert-danger d-none"></div>
+
+                        <div id="ownerSelectGroup" class="mb-3 d-none">
+                            <label for="bookingOwner" class="form-label">Foglaló</label>
+                            <select id="bookingOwner" class="form-select"></select>
+                        </div>
+                        <p id="ownerText" class="mb-3 text-muted d-none"></p>
 
                         <div class="mb-3">
                             <label for="bookingRoom" class="form-label">Terem</label>

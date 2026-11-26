@@ -5,8 +5,13 @@ const dateFormatter = new Intl.DateTimeFormat('hu-HU', {
     year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
 });
 
+const shortDateFormatter = new Intl.DateTimeFormat('hu-HU', {
+    month: 'short', day: 'numeric', weekday: 'short'
+});
+
 let currentUser = null;
 let rooms = [];
+let users = [];
 let selectedDate = todayIso();
 let editingBookingId = null;
 let bookingModal = null;
@@ -207,6 +212,109 @@ function fillRoomSelect() {
     }
 }
 
+function setupOwnerField() {
+    if (currentUser.isAdmin) {
+        const select = document.getElementById('bookingOwner');
+        select.replaceChildren();
+
+        for (const user of users) {
+            select.add(new Option(`${user.name} (${user.neptunCode})`, user.id));
+        }
+
+        document.getElementById('ownerSelectGroup').classList.remove('d-none');
+    } else {
+        const text = document.getElementById('ownerText');
+        text.textContent = `Foglaló: ${currentUser.name} (${currentUser.neptunCode})`;
+        text.classList.remove('d-none');
+    }
+}
+
+async function loadUpcoming() {
+    const filters = currentUser.isAdmin
+        ? { from: todayIso() }
+        : { from: todayIso(), mine: true };
+
+    document.getElementById('upcomingTitle').textContent = currentUser.isAdmin
+        ? 'Közelgő foglalások (mindenkié)'
+        : 'Közelgő foglalásaim';
+
+    try {
+        const bookings = await api.getBookings(filters);
+        renderUpcoming(bookings.filter(b => !isPastBooking(b)));
+    } catch (error) {
+        showMessage('danger', error.message);
+    }
+}
+
+function renderUpcoming(bookings) {
+    const list = document.getElementById('upcomingList');
+    list.replaceChildren();
+
+    if (bookings.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'text-muted mb-0';
+        empty.textContent = 'Nincs közelgő foglalás.';
+        list.append(empty);
+        return;
+    }
+
+    for (const booking of bookings) {
+        list.append(createUpcomingItem(booking));
+    }
+}
+
+function createUpcomingItem(booking) {
+    const item = document.createElement('div');
+    item.className = 'list-group-item d-flex align-items-center gap-3 px-0';
+
+    const info = document.createElement('div');
+    info.className = 'me-auto';
+
+    const title = document.createElement('div');
+    title.className = 'fw-semibold';
+    title.textContent = `${shortDateFormatter.format(parseIsoDate(booking.date))} · ${formatHour(booking.startHour)}–${formatHour(booking.endHour)}`;
+
+    const details = document.createElement('small');
+    details.className = 'text-muted';
+    let detailsText = `${booking.roomName} · ${booking.peopleCount} fő`;
+
+    if (currentUser.isAdmin) {
+        detailsText += ` · ${booking.studentName} (${booking.neptunCode})`;
+    }
+
+    if (booking.note) {
+        detailsText += ` · ${booking.note}`;
+    }
+
+    details.textContent = detailsText;
+    info.append(title, details);
+
+    const jumpButton = document.createElement('button');
+    jumpButton.className = 'btn btn-outline-primary btn-sm';
+    jumpButton.title = 'Ugrás erre a napra';
+    jumpButton.innerHTML = '<i class="bi bi-calendar-event"></i>';
+    jumpButton.addEventListener('click', () => {
+        selectedDate = booking.date;
+        loadDay();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'btn btn-outline-danger btn-sm';
+    deleteButton.title = 'Törlés';
+    deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+    deleteButton.addEventListener('click', async () => {
+        try {
+            await deleteBooking(booking.id);
+        } catch (error) {
+            showMessage('danger', error.message);
+        }
+    });
+
+    item.append(info, jumpButton, deleteButton);
+    return item;
+}
+
 function showBookingError(message) {
     const error = document.getElementById('bookingError');
     error.textContent = message;
@@ -226,6 +334,7 @@ function openNewBooking(roomId, hour) {
     document.getElementById('bookingEnd').value = hour + 1;
     document.getElementById('bookingPeople').value = 1;
     document.getElementById('bookingNote').value = '';
+    document.getElementById('bookingOwner').value = currentUser.id;
     document.getElementById('deleteBookingButton').classList.add('d-none');
 
     hideBookingError();
@@ -241,6 +350,7 @@ function openEditBooking(booking) {
     document.getElementById('bookingEnd').value = booking.endHour;
     document.getElementById('bookingPeople').value = booking.peopleCount;
     document.getElementById('bookingNote').value = booking.note ?? '';
+    document.getElementById('bookingOwner').value = booking.userId;
     document.getElementById('deleteBookingButton').classList.remove('d-none');
 
     hideBookingError();
@@ -265,6 +375,7 @@ async function deleteBooking(id) {
     await api.deleteBooking(id);
     showMessage('success', 'A foglalás törölve.');
     await loadDay();
+    await loadUpcoming();
     return true;
 }
 
@@ -290,6 +401,10 @@ document.getElementById('bookingForm').addEventListener('submit', async (event) 
         note: document.getElementById('bookingNote').value.trim() || null
     };
 
+    if (currentUser.isAdmin) {
+        booking.userId = Number(document.getElementById('bookingOwner').value);
+    }
+
     const isEditing = editingBookingId != null;
 
     try {
@@ -306,6 +421,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (event) 
     bookingModal.hide();
     selectedDate = booking.date;
     await loadDay();
+    await loadUpcoming();
     showMessage('success', isEditing ? 'A foglalás módosítva.' : 'A foglalás elkészült.');
 });
 
@@ -353,13 +469,19 @@ async function init() {
 
     try {
         rooms = await api.getRooms();
+
+        if (currentUser.isAdmin) {
+            users = await api.getUsers();
+        }
     } catch (error) {
         showMessage('danger', error.message);
         return;
     }
 
     fillRoomSelect();
+    setupOwnerField();
     await loadDay();
+    await loadUpcoming();
 }
 
 init();
