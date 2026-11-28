@@ -152,3 +152,45 @@ body {
 .legend-past {
     background: repeating-linear-gradient(45deg, #f3f4f6, #f3f4f6 3px, #e9ecef 3px, #e9ecef 6px);
 }
+
+.kpi-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6c757d;
+}
+
+.kpi-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.chart-box {
+    position: relative;
+    height: 300px;
+}
+
+.heatmap {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+    .heatmap th,
+    .heatmap td {
+        padding: 8px 0;
+        border: 2px solid #fff;
+        border-radius: 6px;
+    }
+
+    .heatmap th {
+        font-weight: 600;
+        color: #6c757d;
+    }
+
+        .heatmap th:first-child {
+            width: 48px;
+        }

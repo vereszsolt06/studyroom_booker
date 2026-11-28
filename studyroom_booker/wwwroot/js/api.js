@@ -73,6 +73,10 @@ const api = {
         return this.request('GET', '/api/bookings' + this.toQuery(filters));
     },
 
+    getStats(filters) {
+        return this.request('GET', '/api/stats' + this.toQuery(filters));
+    },
+
     createBooking(booking) {
         return this.request('POST', '/api/bookings', booking);
     },
